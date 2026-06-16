@@ -44,11 +44,11 @@
     }
   },
   "align": {
-    "status": "fail",
+    "status": "pass",
     "checks": {
-      "total": 10,
+      "total": 9,
       "passed": 9,
-      "failed": 1
+      "failed": 0
     },
     "mode": [
       "file_checks",
