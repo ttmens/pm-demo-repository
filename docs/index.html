@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PM Pipeline — demo-repository</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, sans-serif; background:#0f1419; color:#e7ecf3; }
+    body { margin:0; padding:16px; max-width:960px; margin-inline:auto; }
+    h1 { font-size:1.4rem; margin-bottom:8px; }
+    .meta { color:#9aa7b5; font-size:.9rem; margin-bottom:16px; }
+    .meta a { color:#6cb6ff; }
+    .badges { margin:12px 0 20px; display:flex; flex-wrap:wrap; gap:8px; }
+    .badge { padding:4px 10px; border-radius:999px; font-size:.8rem; background:#243044; }
+    .badge.pass { background:#1f4d2e; color:#9be7b0; }
+    .badge.fail { background:#5a2323; color:#ffb4b4; }
+    .badge.overall.pass { background:#2d4a7a; }
+    .tabs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+    .tab { background:#1a2332; color:#dce6f2; border:1px solid #2b3b52; padding:8px 12px; border-radius:8px; cursor:pointer; }
+    .tab.active { background:#2d4a7a; border-color:#4d7ec2; }
+    .panel { display:none; background:#151d29; border:1px solid #2b3b52; border-radius:12px; padding:16px; }
+    .panel.active { display:block; }
+    .md-render { line-height:1.55; }
+    .md-render h2 { margin-top:1.2em; }
+    pre.md-source { display:none; }
+    .proto-frame { width:100%; min-height:420px; border:1px solid #2b3b52; border-radius:8px; background:#fff; }
+    section { margin-top:24px; }
+  </style>
+</head>
+<body>
+  <h1>PM Idea → MVP — demo-repository</h1>
+  <div class="meta">
+    Repo: <a href="https://github.com/ttmens/pm-demo-repository">https://github.com/ttmens/pm-demo-repository</a> ·
+    Pages: <a href="https://ttmens.github.io/pm-demo-repository/">https://ttmens.github.io/pm-demo-repository/</a><br/>
+    Commit: 523cb25 · Built: 2026-06-16 11:52 UTC
+  </div>
+  <div class="badges"><span class="badge fail">brief</span> <span class="badge fail">align</span> <span class="badge fail">research</span> <span class="badge fail">analysis</span> <span class="badge fail">spec</span> <span class="badge fail">mvp</span> <span class="badge fail">ship</span> <span class="badge fail">operate</span> <span class="badge fail">grow</span> <span class="badge fail">retro</span> <span class="badge overall unknown">overall: unknown</span></div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab" data-tab="RUN-md">运行说明</button><button class="tab" data-tab="00-brief-md">Brief</button><button class="tab" data-tab="CONTEXT-md">Context</button><button class="tab" data-tab="decisions-md">Decisions</button><button class="tab" data-tab="01-research-md">Research</button><button class="tab" data-tab="01b-benchmark-md">Benchmark</button><button class="tab" data-tab="02-analysis-md">Analysis</button><button class="tab" data-tab="03b-user-journey-md">UserJourney</button><button class="tab" data-tab="03-prd-md">PRD</button><button class="tab" data-tab="05-retro-md">Retro</button><button class="tab" data-tab="06-refine-retro-md">RefineRetro</button><button class="tab" data-tab="RUNBOOK-md">Ship</button><button class="tab" data-tab="07-ops-notes-md">Operate</button><button class="tab" data-tab="06-growth-md">Grow</button><button class="tab" data-tab="docs-ui-acceptance-report-md">UIAcceptance</button>
+    <button class="tab" data-tab="openspec-panel">OpenSpec</button>
+    <button class="tab" data-tab="c4-panel">C4</button>
+    <button class="tab" data-tab="journey-panel">Journey</button>
+    <button class="tab" data-tab="mvp-panel">MVP</button>
+    <button class="tab" data-tab="proto-panel">Prototype</button>
+  </div>
+
+  <div class="panel" id="RUN-md"><pre class="md-source"># 本次运行说明 (v6.1 — import_repo)
+
+| 项 | 值 |
+|----|-----|
+| 标题 | Idea: 使用想法到产品 最新技能 新开一个项目 [amnRideAI/demo-repository: A code repository designed to show the best GitHub h |
+| Slug | `demo-repository` |
+| Scenario | `import_repo` |
+| 目录 | `D:/workspace/projects/pm-demo-repository` |
+| Pages | https://ttmens.github.io/pm-demo-repository/ |
+
+## 阶段清单
+
+- [ ] Grill 对齐+范围 — demo-repository
+- [ ] Clone 外部仓库 — demo-repository
+- [ ] 深度调研 — demo-repository
+- [ ] 方案论证 — demo-repository
+- [ ] 原型+PRD+OpenSpec — demo-repository
+- [ ] MVP 优化 iter 1 — demo-repository
+- [ ] MVP 优化 iter 2 — demo-repository
+- [ ] MVP 优化 iter 3 — demo-repository
+- [ ] Ship 部署 — demo-repository
+- [ ] Retro+进化 — demo-repository
+
+## 人工检查点
+
+1. **align** — 确认 CONTEXT 后 unblock
+2. **spec** — 确认 PRD/原型后 unblock
+3. **ship** — 确认部署范围后 unblock
+
+Harness: `harness-rules.yaml` | Progress: `PROGRESS.md`
+</pre></div><div class="panel" id="00-brief-md"><pre class="md-source"># 产品想法
+
+**创建时间**: 2026-06-16T11:06:50Z
+
+## 标题
+demo-repository — GitHub 最佳实践仓库深度优化
+
+## 描述
+Clone `amnRideAI/demo-repository`（一个展示 GitHub 最佳实践的代码仓库），深入理解并分析当前实现，从原始需求视角对该工程进行深入优化。
+
+## 问题陈述
+[ASSUMED] 用户希望学习并掌握 GitHub 平台提供的最佳实践（Actions、Issues、Projects、PR 模板、CI/CD 等），通过一个示范仓库来理解这些功能的设计思路与实现方式。当前仓库可能存在结构不清晰、实践不够深入、缺少实际场景覆盖等问题，需要从产品需求角度进行系统性优化。
+
+## 目标用户与 Job-to-be-Done
+- **主要用户**: 开发者 / DevOps 工程师 / 开源项目维护者
+- **Job-to-be-Done**: 快速理解并应用 GitHub 最佳实践到自己的项目中，减少配置试错成本
+
+## 成功指标
+1. 仓库结构清晰，每个 GitHub 功能有独立目录和文档说明
+2. 所有 GitHub 功能（Actions、Issues、PR、Projects）均有可运行的示例
+3. 从 clone 到理解仓库用途 &lt; 5 分钟（首次体验）
+4. CI/CD pipeline 覆盖 lint、test、build、deploy 四个阶段
+
+## 约束
+- 技术栈：Python（harness-rules.yaml 已指定）
+- 语言：中文文档为主（zh-CN）
+- 源仓库可能不可访问（404），需基于 GitHub 最佳实践通用知识重建
+
+## 非目标
+- 不构建 SaaS 产品或 Web 应用
+- 不涉及商业变现
+- 不做移动端适配
+
+## 假设
+1. [LOW CONFIDENCE] 源仓库 `amnRideAI/demo-repository` 仍可访问或用户有本地副本 — 当前 GitHub 返回 404
+2. [MEDIUM] 用户主要关注 GitHub Actions 和 CI/CD 最佳实践
+3. [MEDIUM] 优化方向是增强可教学性（让仓库成为学习资源）
+4. [HIGH] 用户期望产物是一个结构化的、可直接使用的 GitHub 模板仓库
+5. [HIGH] Python 为示例项目的主要语言
+</pre></div><div class="panel" id="CONTEXT-md"><pre class="md-source"># Context — demo-repository
+
+## 系统上下文
+
+本项目是一个 **GitHub 最佳实践示范仓库**，目标是作为开发者学习 GitHub 平台功能的参考实现。通过 pm-idea-to-mvp v7.2.0 pipeline 的 `import_repo` 场景导入，从原始需求视角对仓库进行深度优化。
+
+## Glossary
+
+| 术语 | 定义 |
+|------|------|
+| demo-repository | 展示 GitHub 最佳实践的代码仓库，作为模板和学习资源 |
+| GitHub Actions | GitHub 原生 CI/CD 自动化平台，通过 YAML workflow 定义构建/测试/部署流水线 |
+| GitHub Issues | GitHub 内置的问题跟踪系统，支持模板、标签、里程碑 |
+| PR Template | Pull Request 模板，标准化贡献者提交代码时的描述格式 |
+| GitHub Projects | GitHub 内置的项目管理看板，支持自动化工作流 |
+| import_repo | PM pipeline 场景之一，用于导入外部仓库并走完整流水线 |
+| harness-rules | 项目治理规则文件，定义技术栈、测试命令、人工检查点等 |
+| CI/CD Pipeline | 持续集成/持续部署流水线，覆盖 lint → test → build → deploy |
+| 模板仓库 | GitHub Template Repository，可一键 fork 为新项目而不继承 git 历史 |
+
+## Stakeholders
+
+| 角色 | 关注点 |
+|------|--------|
+| 开发者（主要用户） | 快速理解并应用 GitHub 最佳实践 |
+| 开源维护者 | 标准化贡献流程、自动化质量门禁 |
+| DevOps 工程师 | CI/CD 流水线设计、部署自动化 |
+| 项目拥有者（用户） | 通过优化仓库深入理解 GitHub 功能 |
+
+## Constraints
+
+- 技术栈：Python（harness-rules.yaml 指定）
+- 文档语言：中文为主（zh-CN）
+- 源仓库可能不可访问（GitHub 404）
+- 产物为静态仓库，非运行时服务
+
+## Non-goals
+
+- 不构建 SaaS / Web 应用
+- 不涉及商业变现
+- 不做移动端适配
+- 不替代 GitHub 官方文档
+</pre></div><div class="panel" id="decisions-md"><pre class="md-source"># Decisions — demo-repository
+
+## ADR-001: 源仓库不可访问时的处理策略
+
+- **Status**: proposed
+- **Context**: `amnRideAI/demo-repository` 在 GitHub 返回 404（可能已删除或设为私有）。pipeline 的 `import_repo` 场景依赖 clone 外部仓库作为起点。
+- **Decision**: 基于 GitHub 最佳实践通用知识重建仓库结构，不依赖源仓库内容。若用户后续提供本地副本或替代仓库，可在 research 阶段调整。
+- **Consequences**: 产物可能偏离用户原始期望（如果源仓库有特定结构）。需在 align 检查点由用户确认方向。
+
+## ADR-002: 仓库定位为&quot;学习模板&quot;而非&quot;工具产品&quot;
+
+- **Status**: proposed
+- **Context**: 原始需求提到&quot;深入优化&quot;，但未明确优化方向——是做成可复用的模板仓库，还是做成一个实际运行的工具。
+- **Decision**: 将仓库定位为 **GitHub 最佳实践学习模板**，每个功能模块附带说明文档和使用指南。
+- **Consequences**: 不涉及运行时服务部署，ship 阶段简化为 GitHub Pages 文档发布。
+
+## ADR-003: 技术栈锁定 Python
+
+- **Status**: accepted
+- **Context**: harness-rules.yaml 已指定 `tech_stack: python`，所有示例代码和 CI/CD 均基于 Python。
+- **Decision**: 示例项目使用 Python，CI/CD workflow 使用 Python 生态工具（pytest、ruff、pip）。
+- **Consequences**: 不涉及其他语言生态的最佳实践展示（如 Node.js、Go）。
+
+## ADR-004: 文档语言以中文为主
+
+- **Status**: accepted
+- **Context**: harness-rules.yaml 指定 `language: zh-CN`，用户主要使用中文交流。
+- **Decision**: 所有文档、README、注释使用中文；代码标识符和 YAML 配置保留英文。
+- **Consequences**: 对非中文用户的可访问性降低，但符合目标用户画像。
+</pre></div><div class="panel" id="01-research-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="01b-benchmark-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="02-analysis-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="03b-user-journey-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="03-prd-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="05-retro-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="06-refine-retro-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="RUNBOOK-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="07-ops-notes-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="06-growth-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="docs-ui-acceptance-report-md"><p><em>Not generated yet.</em></p></div>
+  <div class="panel" id="openspec-panel"><p><em>OpenSpec not generated yet.</em></p></div>
+  <div class="panel" id="c4-panel"><p><em>C4 architecture not generated yet.</em></p></div>
+  <div class="panel" id="journey-panel"><p><em>Not generated yet.</em></p></div>
+  <div class="panel" id="mvp-panel"><p><em>MVP not built yet.</em></p></div>
+  <div class="panel" id="ship-panel">
+    <h3>RUNBOOK</h3><p><em>Not generated yet.</em></p>
+    <h3>UI Acceptance (full)</h3><p><em>Not generated yet.</em></p>
+    <h3>Ops Notes</h3><p><em>Not generated yet.</em></p>
+    <h3>Growth</h3><p><em>Not generated yet.</em></p>
+  </div>
+  <div class="panel" id="proto-panel"><p><em>No static prototype (02b-prototype/index.html) yet.</em></p></div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.panel');
+    function activate(id) {
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+      panels.forEach(p => p.classList.toggle('active', p.id === id));
+    }
+    tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));
+    document.querySelectorAll('.md-source').forEach((pre, i) => {
+      const panel = pre.parentElement;
+      const div = document.createElement('div');
+      div.className = 'md-render';
+      div.innerHTML = marked.parse(pre.textContent);
+      panel.insertBefore(div, pre);
+    });
+    activate(tabs[0]?.dataset.tab || 'RUN-md');
+    const hashId = location.hash.replace(/^#/, '');
+    if (hashId) activate(hashId);
+  </script>
+</body>
+</html>

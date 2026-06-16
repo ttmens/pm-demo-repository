@@ -2,7 +2,7 @@
 
 | 项 | 值 |
 |----|-----|
-| 标题 | Idea: demo-repository import |
+| 标题 | Idea: 使用想法到产品 最新技能 新开一个项目 [amnRideAI/demo-repository: A code repository designed to show the best GitHub h |
 | Slug | `demo-repository` |
 | Scenario | `import_repo` |
 | 目录 | `D:/workspace/projects/pm-demo-repository` |

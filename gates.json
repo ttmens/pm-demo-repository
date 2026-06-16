@@ -42,5 +42,17 @@
       "status": "pending",
       "checkpoint": "auto"
     }
+  },
+  "align": {
+    "status": "fail",
+    "checks": {
+      "total": 9,
+      "passed": 2,
+      "failed": 7
+    },
+    "mode": [
+      "file_checks",
+      "runtime"
+    ]
   }
 }
