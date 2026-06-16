@@ -33,7 +33,7 @@
   <div class="meta">
     Repo: <a href="https://github.com/ttmens/pm-demo-repository">https://github.com/ttmens/pm-demo-repository</a> ·
     Pages: <a href="https://ttmens.github.io/pm-demo-repository/">https://ttmens.github.io/pm-demo-repository/</a><br/>
-    Commit: 9927b53 · Built: 2026-06-16 22:49 UTC
+    Commit: 5623a1a · Built: 2026-06-16 22:55 UTC
   </div>
   <div class="badges"><span class="badge fail">brief</span> <span class="badge fail">align</span> <span class="badge fail">research</span> <span class="badge fail">analysis</span> <span class="badge fail">spec</span> <span class="badge fail">mvp</span> <span class="badge fail">ship</span> <span class="badge fail">operate</span> <span class="badge fail">grow</span> <span class="badge fail">retro</span> <span class="badge overall unknown">overall: unknown</span></div>
 
@@ -197,74 +197,100 @@ Clone `amnRideAI/demo-repository`（一个展示 GitHub 最佳实践的代码仓
 
 ## ADR-001: 源仓库不可访问时的处理策略
 
-- **Status**: proposed
-- **Context**: `amnRideAI/demo-repository` 在 GitHub 返回 404（可能已删除或设为私有）。
-  pipeline 的 `import_repo` 场景依赖 clone 外部仓库作为起点。
-  这是一个高风险假设——若仓库有独特结构，重建产物可能偏离用户期望。
-- **Decision**: 基于 GitHub 最佳实践通用知识重建仓库结构，不依赖源仓库内容。
-  若用户后续提供本地副本或替代仓库，可在 research 阶段调整。
+- **Status**: accepted
+- **Context**: `amnRideAI/demo-repository` 在 GitHub 最初返回 404。pipeline 的 `import_repo` 场景依赖 clone 外部仓库作为起点。
+- **Decision**: 基于 GitHub 最佳实践通用知识重建仓库结构，不依赖源仓库内容。若用户后续提供本地副本或替代仓库，可在 research 阶段调整。
 - **Consequences**:
   - 正面: 不阻塞 pipeline 推进
   - 负面: 产物可能缺少源仓库的特定设计意图
-  - 风险缓解: align 检查点由用户确认方向是否正确
+  - **实际结果**: 源仓库 clone 成功（_source_repo/），发现是多语言 Monorepo（Go+Python+Flutter+React+Node）。基于实际结构调整了分析方向。
 
 ## ADR-002: 仓库定位为&quot;学习模板&quot;而非&quot;工具产品&quot;
 
-- **Status**: proposed
-- **Context**: 原始需求提到&quot;深入优化&quot;，但未明确优化方向。
-  两种可能路径：(a) 可复用的模板仓库 (b) 实际运行的工具产品。
-  假设用户意图是 (a)，因为原始描述强调&quot;展示 GitHub 最佳实践&quot;。
-- **Decision**: 将仓库定位为 **GitHub 最佳实践学习模板**，
-  每个功能模块附带说明文档和使用指南。
+- **Status**: accepted
+- **Context**: 原始需求提到&quot;深入优化&quot;，但未明确优化方向。两种可能路径：(a) 可复用的模板仓库 (b) 实际运行的工具产品。
+- **Decision**: 将仓库定位为 **GitHub 最佳实践学习模板**，每个功能模块附带说明文档和使用指南。包含模板化改造（Template Repository + init.sh）。
 - **Consequences**:
-  - 正面: 不涉及运行时服务部署，ship 阶段简化
+  - 正面: 不涉及运行时服务部署，ship 阶段简化；可复用为新项目
   - 负面: 若用户期望工具产品，需大幅调整
-  - 验证: align 检查点确认
+  - 影响容器: Community Files, Learning Docs, Init Scripts
 
-## ADR-003: 技术栈锁定 Python
+## ADR-003: 技术栈覆盖策略
+
+- **Status**: superseded by ADR-003b
+- **Context**: harness-rules.yaml 指定 `tech_stack: python`。最初假设所有示例代码和 CI/CD 均基于 Python。
+- **Original Decision**: 示例项目使用 Python，CI/CD workflow 使用 Python 生态工具。
+- **Superseded**: 源仓库实际是多语言 Monorepo（Go + Python + Flutter + React + Node），仅覆盖 Python 无法展示 Monorepo 路径过滤的核心价值。
+- **Affected Containers**: Source Services, CI Workflows
+
+### ADR-003b: 技术栈覆盖全语言
 
 - **Status**: accepted
-- **Context**: harness-rules.yaml 已指定 `tech_stack: python`。
-  所有示例代码和 CI/CD 均基于 Python。
-  假设用户接受 Python 作为唯一示例语言。
-- **Decision**: 示例项目使用 Python，CI/CD workflow 使用 Python 生态工具
-  （pytest、ruff、pip）。
+- **Context**: 源仓库包含 6 个服务（ride-hermes/Go, ai-service/Python, admin-web/React, driver-app/Flutter, passenger-app/Flutter, ride-hermes-mcp/Node）。仅覆盖 Python 无法展示 Monorepo CI 的最佳实践。
+- **Decision**: CI/CD 覆盖全语言（Go + Python + Node + Flutter），但 harness-rules.yaml 的 `tech_stack: python` 约束仅影响 MVP 代码实现（04-mvp/），不影响 CI workflow 设计。
 - **Consequences**:
-  - 正面: 技术栈统一，降低维护复杂度
-  - 负面: 不覆盖其他语言生态的最佳实践
-  - 风险: 若用户期望多语言示例，需扩展范围
+  - 正面: 完整展示多语言 Monorepo 的 CI/CD 最佳实践
+  - 负面: 需要维护 5+ 个不同语言的 workflow
+  - 风险: Flutter CI 环境配置复杂，可能超时
+  - 影响容器: CI Workflows, Source Services
 
 ## ADR-004: 文档语言以中文为主
 
 - **Status**: accepted
 - **Context**: harness-rules.yaml 指定 `language: zh-CN`，用户主要使用中文交流。
-  假设目标用户群体为中文开发者。
 - **Decision**: 所有文档、README、注释使用中文；代码标识符和 YAML 配置保留英文。
 - **Consequences**:
   - 正面: 符合目标用户画像
   - 负面: 对非中文用户的可访问性降低
-  - 风险: 若目标是国际化项目，需增加英文版本
+  - 影响容器: Community Files, Learning Docs
 
 ## ADR-005: 仓库结构采用功能模块化布局
 
-- **Status**: proposed
+- **Status**: accepted
 - **Context**: 作为学习模板，仓库结构需要清晰展示每个 GitHub 功能的独立实现。
-  假设按功能模块组织（.github/actions/、.github/ISSUE_TEMPLATE/ 等）。
 - **Decision**: 采用功能模块化布局，每个 GitHub 功能有独立目录和 README。
 - **Consequences**:
   - 正面: 易于定位和学习特定功能
   - 负面: 可能导致目录层级较深
-  - 验证: research 阶段评估其他开源模板仓库的结构
+  - 影响容器: 全部容器
+
+## ADR-006: 多语言 CI 策略 — 每服务独立 workflow + paths-filter
+
+- **Status**: accepted
+- **Context**: 源仓库是多语言 Monorepo，需要为每个服务设计独立的 CI/CD 流水线。两种策略：(a) 单一 monolith workflow + matrix (b) 每服务独立 workflow + paths-filter。
+- **Decision**: 采用策略 (b) — 为每个服务创建独立 workflow（ci-backend.yml / ci-ai-service.yml / ci-admin-web.yml / ci-mobile.yml / ci-mcp.yml），使用 `dorny/paths-filter@v3` 检测变更目录，仅触发对应 workflow。
+- **Rationale**:
+  - 独立失败、独立重试、独立缓存
+  - 避免无关变更触发全量构建，节省 Actions 分钟
+  - 展示 Monorepo CI 的核心最佳实践
+  - 替代方案（单一 workflow + matrix）失败时需全量重跑
+- **Consequences**:
+  - 正面: 增量构建，缓存友好，可教学性强
+  - 负面: 需要维护 5+ 个 workflow 文件
+  - 缓解: 使用 Reusable Workflows 提取公共 lint 逻辑
+  - 影响容器: CI Workflows（Path Filter, Go/Python/Node/Flutter CI Pipeline, Dependency Cache）
+
+## ADR-007: 模板化改造策略
+
+- **Status**: accepted
+- **Context**: 仓库定位为&quot;学习模板&quot;（ADR-002），需要支持一键 Template 为新项目。
+- **Decision**: 标记仓库为 Template Repository，创建 `scripts/init.sh` 替换项目名称/作者/描述等变量。README 增加&quot;使用此模板&quot;章节。
+- **Consequences**:
+  - 正面: 可复用为新项目启动模板
+  - 负面: 需要清理示例内容，添加 TODO 标记
+  - 影响容器: Init Scripts, Community Files
 
 ## 假设汇总与验证计划
 
-| 假设 | 风险等级 | 验证方式 | 阶段 |
-|------|----------|----------|------|
-| 源仓库不可访问 | HIGH | git clone 测试 | research |
-| 用户关注 CI/CD | MEDIUM | align 检查点确认 | align |
-| 优化方向为教学 | MEDIUM | align 检查点确认 | align |
-| Python 为唯一语言 | LOW | 检查源仓库 | research |
-| 功能模块化布局 | LOW | 对比其他模板 | research |
+| 假设 | 风险等级 | 验证方式 | 阶段 | 状态 |
+|------|----------|----------|------|------|
+| 源仓库不可访问 | HIGH | git clone 测试 | research | ✅ 已验证（clone 成功） |
+| 用户关注 CI/CD | MEDIUM | align 检查点确认 | align | ⏳ 待确认 |
+| 优化方向为教学 | MEDIUM | align 检查点确认 | align | ⏳ 待确认 |
+| Python 为唯一语言 | LOW | 检查源仓库 | research | ❌ 已推翻（多语言） |
+| 功能模块化布局 | LOW | 对比其他模板 | research | ✅ 已验证 |
+| paths-filter 减少 50%+ 无关触发 | MEDIUM | 对比开启前后运行次数 | Phase 2 | ⏳ 待验证 |
+| 首次体验 &lt; 5 分钟 | MEDIUM | 邀请 3 位开发者测试 | Phase 3 | ⏳ 待验证 |
 </pre></div><div class="panel" id="01-research-md"><pre class="md-source"># 01-research.md — GitHub 示范仓库最佳实践研究
 
 &gt; **项目**: pm-demo-repository  
@@ -615,9 +641,806 @@ template-repo/
 ---
 
 *本研究由 pm-researcher 自动生成，基于 20 个来源的交叉验证。*
-</pre></div><div class="panel" id="01b-benchmark-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="02-analysis-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="03b-user-journey-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="03-prd-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="05-retro-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="06-refine-retro-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="RUNBOOK-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="07-ops-notes-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="06-growth-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="docs-ui-acceptance-report-md"><p><em>Not generated yet.</em></p></div>
-  <div class="panel" id="openspec-panel"><p><em>OpenSpec not generated yet.</em></p></div>
-  <div class="panel" id="c4-panel"><p><em>C4 architecture not generated yet.</em></p></div>
+</pre></div><div class="panel" id="01b-benchmark-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="02-analysis-md"><pre class="md-source"># 02-analysis.md — 方案论证
+
+&gt; **项目**: demo-repository  
+&gt; **阶段**: Analysis  
+&gt; **日期**: 2026-06-17  
+&gt; **输入**: 01-research.md, CONTEXT.md, _source_repo/
+
+---
+
+## 1. 问题陈述
+
+### 1.1 核心问题
+
+`amnRideAI/demo-repository` 是一个**多语言 Monorepo 网约车平台示范仓库**（Go 后端 + Python AI + Flutter 移动端 + React 管理后台 + Node MCP），但当前在 GitHub 最佳实践方面存在严重缺失：
+
+| 维度 | 现状 | 目标 |
+|------|------|------|
+| CI/CD 覆盖率 | 2 个 workflow（auto-assign + proof-html），无 lint/test/build | 每个服务独立 CI，路径过滤触发 |
+| 社区健康文件 | 仅极简 README（4 行） | 完整 Community Profile（README/LICENSE/CONTRIBUTING/CODE_OF_CONDUCT/SECURITY） |
+| 多语言支持 | 无，未区分服务独立构建 | Go/Python/Node/Flutter 各有专属 workflow |
+| 模板化程度 | 无，不可直接复用为新项目 | 标记为 Template Repository，含初始化脚本 |
+| 可教学性 | 无注释/说明 | 每个功能模块附带学习文档 |
+
+### 1.2 用户痛点
+
+- **开发者**：无法从该仓库学到 GitHub Actions 的实战用法（路径过滤、矩阵构建、缓存优化）
+- **开源维护者**：缺少标准化的贡献流程（无 CONTRIBUTING、无 PR 模板、无 CODEOWNERS）
+- **DevOps 工程师**：无法参考多语言 Monorepo 的 CI/CD 设计模式
+
+### 1.3 成功标准
+
+1. GitHub Community Profile 评分从 ~20% 提升到 100%
+2. 每个服务（ride-hermes/ai-service/admin-web/driver-app/passenger-app/mcp）有独立 CI workflow
+3. `paths-filter` 实现增量构建，无关变更不触发全量 CI
+4. 仓库可一键 Template 为新项目，含 `scripts/init.sh` 替换变量
+5. 从 clone 到理解仓库用途 &lt; 5 分钟（首次体验）
+
+---
+
+## 2. 方案选项
+
+### 方案 A：最小可行改造（Minimal Viable Enhancement）
+
+**描述**：仅补充社区健康文件 + 1 个通用 CI workflow，不区分服务。
+
+**范围**：
+- 补充 README.md（项目概述、架构、快速开始）
+- 补充 LICENSE（MIT）
+- 补充 CONTRIBUTING.md
+- 补充 CODE_OF_CONDUCT.md（Contributor Covenant）
+- 补充 SECURITY.md
+- 创建 1 个 `ci.yml`：对所有 PR 运行 Python lint + test（仅覆盖 ai-service）
+
+**优点**：
+- 工作量最小（~2 天）
+- Community Profile 评分快速提升
+- 不涉及复杂的多语言 CI 设计
+
+**缺点**：
+- 不解决多语言 Monorepo 的核心痛点
+- 无法展示 GitHub Actions 的高级用法（路径过滤、矩阵构建）
+- 对其他服务（Go/Flutter/React）的开发者无价值
+
+**风险**：
+- 若用户期望完整的多语言 CI，需大幅返工
+
+**置信度**：🟡 中
+
+---
+
+### 方案 B：分阶段渐进改造（Phased Progressive Enhancement）⭐ 推荐
+
+**描述**：分 3 个阶段逐步完善，每阶段交付可独立使用的产物。
+
+**阶段划分**：
+
+**Phase 1 — 社区健康文件（1 天）**
+- 补充完整 Community Profile（README/LICENSE/CONTRIBUTING/CODE_OF_CONDUCT/SECURITY）
+- 创建 `.github/CODEOWNERS`
+- 创建 `.github/ISSUE_TEMPLATE/`（bug_report.md, feature_request.md）
+- 创建 `.github/PULL_REQUEST_TEMPLATE.md`
+
+**Phase 2 — 多语言 CI/CD（3 天）**
+- 为每个服务创建独立 workflow：
+  - `ci-backend.yml`（Go: lint + test + build）
+  - `ci-ai-service.yml`（Python: ruff + pytest + build）
+  - `ci-admin-web.yml`（Node: lint + test + build）
+  - `ci-mobile.yml`（Flutter: analyze + build，覆盖 driver-app + passenger-app）
+  - `ci-mcp.yml`（Node: lint + test）
+- 使用 `dorny/paths-filter@v3` 实现路径过滤
+- 使用 `actions/cache@v4` 优化依赖缓存
+- 创建 `docker-build.yml`：main push 时构建全服务镜像
+
+**Phase 3 — 模板化改造（2 天）**
+- 标记仓库为 Template Repository
+- 创建 `scripts/init.sh`：替换项目名称、作者、描述等变量
+- 创建 `docs/LEARNING_GUIDE.md`：每个 GitHub 功能的学习路径
+- 清理示例内容，添加 `TODO:` 标记自定义点
+
+**优点**：
+- 每阶段交付独立价值，可中途停止
+- 完整覆盖多语言 Monorepo 的 CI/CD 最佳实践
+- 模板化改造使仓库可复用
+- 符合&quot;学习模板&quot;定位（ADR-002）
+
+**缺点**：
+- 总工作量 ~6 天，比方案 A 多
+- 需要维护 5+ 个 workflow 文件
+
+**风险**：
+- Flutter CI 可能因环境配置复杂而超时（缓解：使用 `subosito/flutter-action@v2` + 缓存）
+- 多 workflow 维护成本（缓解：使用 Reusable Workflows 提取公共逻辑）
+
+**置信度**：🟢 高
+
+---
+
+### 方案 C：全量一步到位（Full Comprehensive Overhaul）
+
+**描述**：一次性完成所有改造，包括高级功能（Release 自动化、Dependabot、SLSA 签名）。
+
+**范围**：方案 B 全部 + 
+- `release.yml`：tag push 时自动发布 + 生成 changelog
+- `dependabot.yml`：自动依赖更新 PR
+- `stale.yml`：自动关闭过期 issue
+- SLSA Level 3 构建证明（Sigstore 签名）
+- Ephemeral Runners 配置（自托管 runner）
+- 多语言 Super-Linter 集成
+
+**优点**：
+- 一次到位，无需后续迭代
+- 覆盖 GitHub 平台的所有高级功能
+- 可作为&quot;生产级 Monorepo&quot;的完整参考
+
+**缺点**：
+- 工作量 ~10 天
+- 复杂度过高，可能超出&quot;学习模板&quot;的定位
+- SLSA/Ephemeral Runners 对初学者不友好
+
+**风险**：
+- 过度工程化，违背&quot;简洁&quot;原则
+- 若用户需求变化，返工成本高
+
+**置信度**：🟡 中
+
+---
+
+### 方案 D：聚焦单一语言（Single-Language Focus）
+
+**描述**：仅改造 Python 部分（ai-service），忽略其他语言。
+
+**范围**：
+- 方案 A 的社区健康文件
+- 1 个 `ci-ai-service.yml`（Python: ruff + pytest + build）
+- 1 个 `docker-ai.yml`（构建 ai-service 镜像）
+
+**优点**：
+- 工作量 ~3 天
+- 符合 harness-rules.yaml 的 `tech_stack: python` 约束
+- 符合 ADR-003（Python 为唯一语言）
+
+**缺点**：
+- 与实际仓库结构不符（源仓库是多语言 Monorepo）
+- 对 Go/Flutter/React 开发者无价值
+- 无法展示 Monorepo 路径过滤的核心价值
+
+**风险**：
+- 若用户期望完整的多语言支持，需大幅返工
+
+**置信度**：🟡 中
+
+---
+
+## 3. 方案对比矩阵
+
+| 维度 | 方案 A（最小） | 方案 B（分阶段）⭐ | 方案 C（全量） | 方案 D（单语言） |
+|------|---------------|-------------------|---------------|-----------------|
+| 工作量 | 2 天 | 6 天 | 10 天 | 3 天 |
+| Community Profile | ✅ 100% | ✅ 100% | ✅ 100% | ✅ 100% |
+| 多语言 CI | ❌ 仅 Python | ✅ 全语言 | ✅ 全语言 | ❌ 仅 Python |
+| 路径过滤 | ❌ | ✅ | ✅ | ❌ |
+| 模板化 | ❌ | ✅ | ✅ | ❌ |
+| 高级功能 | ❌ | ❌ | ✅ | ❌ |
+| 可教学性 | 🟡 低 | 🟢 高 | 🟡 中（过于复杂） | 🟡 低 |
+| 维护成本 | 低 | 中 | 高 | 低 |
+| 符合用户期望 | 🟡 可能不足 | 🟢 高 | 🟡 可能过度 | 🟡 可能不足 |
+
+---
+
+## 4. SWOT 分析（方案 B）
+
+### Strengths（优势）
+
+- **分阶段交付**：每阶段独立可用，降低风险
+- **完整覆盖**：多语言 CI + 社区健康 + 模板化，全面解决痛点
+- **可教学性**：每个功能模块可独立学习，符合&quot;学习模板&quot;定位
+- **路径过滤**：展示 Monorepo CI 的核心最佳实践
+
+### Weaknesses（劣势）
+
+- **工作量中等**：6 天比方案 A 多，但比方案 C 少
+- **多 workflow 维护**：5+ 个 workflow 文件需要同步更新
+- **Flutter CI 复杂性**：移动端构建环境配置可能超时
+
+### Opportunities（机会）
+
+- **GitHub 官方推荐**：路径过滤、Reusable Workflows 是 GitHub 官方推荐模式
+- **社区影响力**：完整的多语言 Monorepo 示范可吸引开源贡献者
+- **复用价值**：模板化后可直接用于新项目启动
+
+### Threats（威胁）
+
+- **技术栈变化**：若用户后续增加新语言（如 Rust），需扩展 workflow
+- **GitHub Actions 限制**：免费账户每月 2000 分钟，多 workflow 可能超限
+- **维护负担**：若仓库不活跃，workflow 可能因依赖过期而失败
+
+---
+
+## 5. 推荐方案
+
+**推荐方案 B：分阶段渐进改造**
+
+### 理由
+
+1. **平衡工作量与价值**：6 天工作量适中，每阶段交付独立价值
+2. **完整覆盖核心痛点**：多语言 CI + 社区健康 + 模板化，全面解决用户问题
+3. **符合&quot;学习模板&quot;定位**（ADR-002）：每个功能模块可独立学习
+4. **降低风险**：分阶段交付，可中途调整方向
+5. **展示最佳实践**：路径过滤、矩阵构建、缓存优化等高级用法
+
+### 不推荐理由
+
+- **方案 A**：过于简单，不解决多语言 Monorepo 的核心痛点
+- **方案 C**：过度工程化，SLSA/Ephemeral Runners 超出&quot;学习模板&quot;定位
+- **方案 D**：与实际仓库结构不符，无法展示 Monorepo 路径过滤价值
+
+### 关键决策
+
+| 决策 | 选择 | 理由 |
+|------|------|------|
+| CI 策略 | 每服务独立 workflow + paths-filter | 展示 Monorepo 最佳实践 |
+| 模板化 | 标记 Template + init.sh | 提高复用价值 |
+| 文档语言 | 中文为主，代码标识符英文 | 符合 ADR-004 |
+| 技术栈覆盖 | 全语言（Go/Python/Node/Flutter） | 符合实际仓库结构 |
+
+### 与 ADR 的一致性
+
+- ✅ ADR-001（源仓库不可访问）：已 clone 成功，基于实际结构调整
+- ✅ ADR-002（学习模板定位）：方案 B 完全符合
+- ⚠️ ADR-003（Python 唯一）：**需更新**——实际仓库是多语言，应覆盖全语言
+- ✅ ADR-004（中文文档）：方案 B 符合
+- ✅ ADR-005（功能模块化）：方案 B 采用模块化布局
+
+---
+
+## 6. 风险与缓解
+
+| 风险 | 影响 | 概率 | 缓解措施 |
+|------|------|------|----------|
+| Flutter CI 超时 | 高 | 中 | 使用 `subosito/flutter-action@v2` + 缓存；限制构建目标（仅 analyze，不 build APK） |
+| 多 workflow 维护成本 | 中 | 高 | 使用 Reusable Workflows 提取公共逻辑（如 `reusable-lint.yml`） |
+| GitHub Actions 分钟超限 | 中 | 低 | 使用 `paths-filter` 减少无关触发；缓存依赖 |
+| 用户期望偏差 | 高 | 低 | align 检查点确认方向；分阶段交付可中途调整 |
+| 依赖过期导致 CI 失败 | 中 | 中 | 配置 Dependabot 自动更新；定期手动检查 |
+
+---
+
+## 7. 可测试假设
+
+| # | 假设 | 验证方式 | 成功标准 | 阶段 |
+|---|------|----------|----------|------|
+| H1 | 路径过滤可减少 50%+ 无关 CI 触发 | 对比 paths-filter 开启前后的 workflow 运行次数 | 无关触发 &lt; 50% | Phase 2 |
+| H2 | 社区健康文件可提升 Community Profile 到 100% | GitHub Insights → Community Profile 检查 | 评分 100% | Phase 1 |
+| H3 | 从 clone 到理解用途 &lt; 5 分钟 | 邀请 3 位开发者测试首次体验 | 平均 &lt; 5 分钟 | Phase 3 |
+| H4 | 模板化后可一键启动新项目 | 使用 Template 创建新仓库，运行 init.sh | 无报错，变量替换成功 | Phase 3 |
+| H5 | Flutter CI 可在 10 分钟内完成 | 观察 workflow 运行时间 | 平均 &lt; 10 分钟 | Phase 2 |
+
+---
+
+## 8. 下一步
+
+1. **Phase 1（1 天）**：补充社区健康文件 → 验证 H2
+2. **Phase 2（3 天）**：创建多语言 CI workflow → 验证 H1, H5
+3. **Phase 3（2 天）**：模板化改造 + 学习指南 → 验证 H3, H4
+
+**MVP 范围**：Phase 1 + Phase 2（4 天），Phase 3 作为后续迭代。
+
+---
+
+*本分析由 pm-analyst 生成，基于 01-research.md 和实际仓库结构的交叉验证。*
+</pre></div><div class="panel" id="03b-user-journey-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="03-prd-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="05-retro-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="06-refine-retro-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="RUNBOOK-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="07-ops-notes-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="06-growth-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="docs-ui-acceptance-report-md"><p><em>Not generated yet.</em></p></div>
+  <div class="panel" id="openspec-panel"><h3>openspec/proposal.md</h3><pre class="md-source"># Proposal: demo-repository — GitHub 最佳实践示范仓库深度优化
+
+## Why
+
+`amnRideAI/demo-repository` 是一个多语言 Monorepo 网约车平台示范仓库（Go + Python + Flutter + React + Node），但在 GitHub 最佳实践方面存在严重缺失：
+
+- **CI/CD 覆盖率极低**：仅 2 个 workflow（auto-assign + proof-html），无 lint/test/build
+- **社区健康文件缺失**：仅 4 行 README，无 LICENSE/CONTRIBUTING/CODE_OF_CONDUCT/SECURITY
+- **多语言支持为零**：未区分服务独立构建，无路径过滤
+- **不可复用**：未标记为 Template Repository，无初始化脚本
+
+开发者无法从该仓库学到 GitHub Actions 的实战用法（路径过滤、矩阵构建、缓存优化），开源维护者无法参考标准化的贡献流程。
+
+## What changes
+
+### Phase 1 — 社区健康文件（1 天）
+
+**新增文件**：
+- `README.md`：项目概述、架构图、快速开始、服务清单
+- `LICENSE`：MIT 许可证
+- `CONTRIBUTING.md`：分支策略、代码规范、PR 流程、代码审查标准
+- `CODE_OF_CONDUCT.md`：Contributor Covenant v2.1
+- `SECURITY.md`：漏洞报告流程、维护版本策略
+- `.github/CODEOWNERS`：各服务目录的审查负责人
+- `.github/ISSUE_TEMPLATE/bug_report.md`：Bug 报告模板
+- `.github/ISSUE_TEMPLATE/feature_request.md`：功能请求模板
+- `.github/PULL_REQUEST_TEMPLATE.md`：PR 描述模板
+
+**验证**：GitHub Community Profile 评分达到 100%
+
+### Phase 2 — 多语言 CI/CD（3 天）
+
+**新增 workflow**：
+- `.github/workflows/ci-backend.yml`：Go lint + test + build（路径过滤 `src/ride-hermes/**`）
+- `.github/workflows/ci-ai-service.yml`：Python ruff + pytest + build（路径过滤 `src/ai-service/**`）
+- `.github/workflows/ci-admin-web.yml`：Node eslint + jest + build（路径过滤 `src/admin-web/**`）
+- `.github/workflows/ci-mobile.yml`：Flutter analyze + build（路径过滤 `src/driver-app/**` + `src/passenger-app/**`）
+- `.github/workflows/ci-mcp.yml`：Node eslint + test（路径过滤 `src/ride-hermes-mcp/**`）
+- `.github/workflows/docker-build.yml`：main push 时构建全服务 Docker 镜像
+
+**关键技术**：
+- `dorny/paths-filter@v3`：路径过滤，仅构建变更的服务
+- `actions/cache@v4`：依赖缓存（Go modules / pip / npm / pub）
+- `actions/setup-go@v5` / `setup-python@v5` / `setup-node@v4` / `subosito/flutter-action@v2`
+- Reusable Workflows：提取公共 lint 逻辑到 `.github/workflows/reusable-lint.yml`
+
+**验证**：
+- 每个 workflow 在 PR 时正确触发（仅针对对应服务变更）
+- 无关变更不触发全量构建（paths-filter 生效）
+- 依赖缓存命中率 &gt; 80%
+
+### Phase 3 — 模板化改造（2 天）
+
+**新增文件**：
+- `scripts/init.sh`：替换项目名称、作者、描述等变量
+- `docs/LEARNING_GUIDE.md`：每个 GitHub 功能的学习路径
+- `.github/workflows/stale.yml`：自动关闭过期 issue（可选）
+
+**改造**：
+- 标记仓库为 Template Repository（Settings → Template repository）
+- 清理示例内容，添加 `TODO:` 标记自定义点
+- README 增加&quot;使用此模板&quot;章节
+
+**验证**：
+- 使用 Template 创建新仓库，运行 `init.sh` 无报错
+- 从 clone 到理解用途 &lt; 5 分钟（邀请 3 位开发者测试）
+
+## Impact
+
+### 正面影响
+
+1. **GitHub Community Profile 100%**：仓库可信度大幅提升
+2. **多语言 CI/CD 参考实现**：展示 Monorepo 路径过滤、矩阵构建、缓存优化的最佳实践
+3. **可复用模板**：一键 Template + init.sh，快速启动新项目
+4. **学习资源**：每个 GitHub 功能有独立示例和文档，降低学习曲线
+
+### 负面影响
+
+1. **维护成本**：5+ 个 workflow 文件需要同步更新
+2. **Actions 分钟消耗**：多 workflow 可能增加 CI 运行时间（缓解：paths-filter 减少无关触发）
+3. **Flutter CI 复杂性**：移动端构建环境配置可能超时（缓解：仅 analyze，不 build APK）
+
+### 风险
+
+| 风险 | 缓解措施 |
+|------|----------|
+| Flutter CI 超时 | 使用 `subosito/flutter-action@v2` + 缓存；限制构建目标 |
+| 多 workflow 维护成本 | 使用 Reusable Workflows 提取公共逻辑 |
+| GitHub Actions 分钟超限 | paths-filter 减少无关触发；缓存依赖 |
+| 依赖过期导致 CI 失败 | 配置 Dependabot 自动更新 |
+
+## Acceptance scenarios
+
+### Scenario 1: 开发者首次 clone 仓库
+
+**Given** 开发者执行 `git clone https://github.com/amnRideAI/demo-repository`  
+**When** 打开 README.md  
+**Then** 5 分钟内理解仓库用途、架构、各服务职责
+
+### Scenario 2: 提交 PR 触发 CI
+
+**Given** 开发者修改 `src/ai-service/main.py` 并提交 PR  
+**When** GitHub Actions 触发  
+**Then** 仅 `ci-ai-service.yml` 运行（Python lint + test），其他 workflow 不触发
+
+### Scenario 3: 使用模板创建新项目
+
+**Given** 用户点击 &quot;Use this template&quot; 创建新仓库  
+**When** 运行 `bash scripts/init.sh`  
+**Then** 项目名称、作者、描述等变量替换成功，无报错
+
+### Scenario 4: Community Profile 评分
+
+**Given** 仓库管理员访问 GitHub Insights → Community Profile  
+**When** 检查清单运行  
+**Then** 评分 100%（README + LICENSE + CONTRIBUTING + CODE_OF_CONDUCT + SECURITY + PR template + Issue templates）
+
+## 成功指标
+
+| 指标 | 目标 | 验证方式 |
+|------|------|----------|
+| Community Profile 评分 | 100% | GitHub Insights |
+| CI workflow 数量 | 6 个（5 服务 + 1 Docker） | `.github/workflows/` 目录 |
+| paths-filter 减少无关触发 | &gt; 50% | 对比开启前后的 workflow 运行次数 |
+| 首次体验时间 | &lt; 5 分钟 | 邀请 3 位开发者测试 |
+| 模板初始化成功率 | 100% | 运行 init.sh 无报错 |
+
+## 非目标
+
+- 不构建 SaaS / Web 应用
+- 不涉及商业变现
+- 不做移动端适配
+- 不替代 GitHub 官方文档
+- 不实现 SLSA 签名 / Ephemeral Runners（超出&quot;学习模板&quot;定位）
+
+## 依赖
+
+- GitHub Actions 免费账户每月 2000 分钟（需监控）
+- Docker Hub 镜像拉取频率限制（需配置 mirror 或缓存）
+- Flutter SDK 下载速度（需缓存）
+
+## 时间线
+
+| 阶段 | 工作量 | 交付物 |
+|------|--------|--------|
+| Phase 1 | 1 天 | 社区健康文件 + Community Profile 100% |
+| Phase 2 | 3 天 | 6 个 CI workflow + paths-filter + 缓存 |
+| Phase 3 | 2 天 | 模板化 + init.sh + 学习指南 |
+| **总计** | **6 天** | **完整的 GitHub 最佳实践示范仓库** |
+
+**MVP 范围**：Phase 1 + Phase 2（4 天），Phase 3 作为后续迭代。
+</pre>
+<h3>openspec/design.md</h3><pre class="md-source"># Design — demo-repository
+
+&gt; 本文件链接 C4 架构模型，不重复描述架构细节。
+
+## 架构文档
+
+- [C4 Level 1 — 系统上下文](../architecture/c4-context.md)
+- [C4 Level 2 — 容器](../architecture/c4-container.md)
+- [C4 Level 3 — 组件](../architecture/c4-component.md)
+
+## 设计原则
+
+1. **功能模块化**：每个 GitHub 功能有独立目录和文档
+2. **增量构建**：paths-filter 仅构建变更的服务
+3. **可复用性**：Reusable Workflows 提取公共逻辑
+4. **可教学性**：每个功能模块附带学习文档
+
+## 技术决策摘要
+
+详见 [decisions.md](../decisions.md) 和 [02-analysis.md](../02-analysis.md)。
+
+| 决策 | 选择 | ADR |
+|------|------|-----|
+| CI 策略 | 每服务独立 workflow + paths-filter | ADR-006 |
+| 模板化 | Template Repository + init.sh | ADR-002 |
+| 文档语言 | 中文为主，代码标识符英文 | ADR-004 |
+| 技术栈覆盖 | 全语言（Go/Python/Node/Flutter） | ADR-003 (updated) |
+</pre></div>
+  <div class="panel" id="c4-panel"><h3>C4 Context</h3><pre class="md-source"># C4 Level 1 — 系统上下文
+
+## 系统
+
+**demo-repository** — GitHub 最佳实践示范仓库，帮助开发者快速学习并应用 GitHub 平台功能（Actions、Issues、PR、Projects、CI/CD）。
+
+## 外部角色
+
+| 角色 | 说明 |
+|------|------|
+| 开发者（Developer） | 主要用户。clone 仓库学习 GitHub 最佳实践，参考 CI/CD workflow 配置自己的项目 |
+| 开源维护者（Maintainer） | 参考社区健康文件（CONTRIBUTING、CODE_OF_CONDUCT）和 CODEOWNERS 标准化自己的贡献流程 |
+| DevOps 工程师 | 参考多语言 Monorepo 的 CI/CD 设计模式（路径过滤、矩阵构建、缓存优化） |
+| 模板使用者（Template User） | 使用 Template 功能一键 fork 仓库为新项目，通过 init.sh 替换变量快速启动 |
+
+## 外部系统
+
+| 系统 | 说明 |
+|------|------|
+| GitHub Platform | 托管仓库、运行 Actions、管理 Issues/PR/Projects |
+| GitHub Actions Marketplace | 提供第三方 Action（dorny/paths-filter、subosito/flutter-action 等） |
+| Docker Hub | 提供基础镜像（mysql:8.0、redis:7.2-alpine、golang、python、node） |
+
+## 上下文图
+
+```mermaid
+C4Context
+  title demo-repository 系统上下文
+
+  person developer as &quot;开发者&quot;
+  person maintainer as &quot;开源维护者&quot;
+  person devops as &quot;DevOps 工程师&quot;
+  person templateUser as &quot;模板使用者&quot;
+
+  system demoRepo as &quot;demo-repository&quot;
+  system github as &quot;GitHub Platform&quot;
+  system marketplace as &quot;Actions Marketplace&quot;
+  system dockerHub as &quot;Docker Hub&quot;
+
+  developer --&gt; demoRepo : clone / 学习最佳实践
+  maintainer --&gt; demoRepo : 参考社区健康文件
+  devops --&gt; demoRepo : 参考多语言 CI/CD 模式
+  templateUser --&gt; demoRepo : Template fork + init.sh
+
+  demoRepo --&gt; github : 托管 + 运行 Actions
+  demoRepo --&gt; marketplace : 引用第三方 Action
+  demoRepo --&gt; dockerHub : 拉取基础镜像
+```
+
+## 价值主张
+
+- **对开发者**：从 clone 到理解 &lt; 5 分钟，每个 GitHub 功能有独立示例和文档
+- **对维护者**：开箱即用的社区健康文件模板，标准化贡献流程
+- **对 DevOps**：多语言 Monorepo 的 CI/CD 参考实现（路径过滤、矩阵构建、缓存）
+- **对模板使用者**：一键 Template + init.sh，快速启动新项目
+</pre>
+<h3>C4 Container</h3><pre class="md-source"># C4 Level 2 — 容器
+
+## 容器清单
+
+| 容器 | 技术 | 职责 |
+|------|------|------|
+| Community Files | Markdown | 社区健康文件（README、LICENSE、CONTRIBUTING、CODE_OF_CONDUCT、SECURITY）— 仓库的&quot;门面&quot;和信任基础 |
+| CI Workflows | GitHub Actions (YAML) | 多语言 CI/CD 流水线 — 每服务独立 workflow，路径过滤触发 |
+| Issue/PR Templates | Markdown + YAML | 标准化贡献流程 — Issue 模板（bug/feature）、PR 模板、CODEOWNERS |
+| Source Services | Go / Python / Node / Flutter / TS | 6 个业务服务 — 作为 CI/CD 的构建目标和学习示例 |
+| Docker Compose | Docker + YAML | 本地开发环境编排 — MySQL 8.0 + Redis 7.2 + 后端服务 |
+| Init Scripts | Bash (init.sh) | 模板初始化 — 替换项目名称、作者、描述等变量 |
+| Learning Docs | Markdown | 学习指南 — 每个 GitHub 功能的说明文档和使用路径 |
+
+## 容器图
+
+```mermaid
+flowchart TB
+  subgraph GitHub[&quot;GitHub Platform&quot;]
+    direction TB
+    subgraph Repo[&quot;demo-repository&quot;]
+      CF[&quot;Community Files\n(README/LICENSE/CONTRIBUTING\n/CODE_OF_CONDUCT/SECURITY)&quot;]
+      
+      subgraph CI[&quot;CI Workflows&quot;]
+        CIB[&quot;ci-backend.yml\n(Go: golangci-lint + go test)&quot;]
+        CIA[&quot;ci-ai-service.yml\n(Python: ruff + pytest)&quot;]
+        CIN[&quot;ci-admin-web.yml\n(Node: eslint + jest + build)&quot;]
+        CIM[&quot;ci-mobile.yml\n(Flutter: analyze + build)&quot;]
+        CIMCP[&quot;ci-mcp.yml\n(Node: eslint + jest)&quot;]
+        CID[&quot;docker-build.yml\n(全服务镜像构建)&quot;]
+      end
+      
+      subgraph Templates[&quot;Issue/PR Templates&quot;]
+        IB[&quot;ISSUE_TEMPLATE/bug_report.md&quot;]
+        IF[&quot;ISSUE_TEMPLATE/feature_request.md&quot;]
+        PT[&quot;PULL_REQUEST_TEMPLATE.md&quot;]
+        CO[&quot;CODEOWNERS&quot;]
+      end
+      
+      subgraph Services[&quot;Source Services&quot;]
+        SVC1[&quot;ride-hermes\n(Go backend)&quot;]
+        SVC2[&quot;ai-service\n(Python FastAPI)&quot;]
+        SVC3[&quot;admin-web\n(React + Vite + TS)&quot;]
+        SVC4[&quot;driver-app\n(Flutter)&quot;]
+        SVC5[&quot;passenger-app\n(Flutter)&quot;]
+        SVC6[&quot;ride-hermes-mcp\n(Node/TS)&quot;]
+      end
+      
+      DC[&quot;Docker Compose\n(MySQL + Redis + Services)&quot;]
+      IS[&quot;Init Scripts\n(init.sh)&quot;]
+      LD[&quot;Learning Docs\n(LEARNING_GUIDE.md)&quot;]
+    end
+  end
+
+  CIB --&gt; SVC1
+  CIA --&gt; SVC2
+  CIN --&gt; SVC3
+  CIM --&gt; SVC4
+  CIM --&gt; SVC5
+  CIMCP --&gt; SVC6
+  CID --&gt; SVC1
+  CID --&gt; SVC2
+  CID --&gt; SVC3
+  DC --&gt; SVC1
+  DC --&gt; SVC2
+  IS --&gt; Repo
+  
+  CF -.-&gt;|信任基础| Repo
+  Templates -.-&gt;|贡献规范| Repo
+  LD -.-&gt;|学习路径| Repo
+```
+
+## 容器间关系
+
+| 源容器 → 目标容器 | 关系 | 说明 |
+|-------------------|------|------|
+| CI Workflows → Source Services | builds/tests | 每个 workflow 针对对应服务的代码变更 |
+| Docker Compose → Source Services | orchestrates | 本地开发时编排服务依赖 |
+| Init Scripts → Repository | initializes | 模板化后替换项目变量 |
+| Community Files → Repository | documents | 提供项目概述和贡献规范 |
+| Learning Docs → Repository | educates | 引导用户学习 GitHub 功能 |
+
+## ADR 映射
+
+| ADR | 影响的容器 |
+|-----|-----------|
+| ADR-001（源仓库处理策略） | Source Services |
+| ADR-002（学习模板定位） | Community Files, Learning Docs |
+| ADR-003（技术栈选择）⚠️ 需更新 | Source Services, CI Workflows |
+| ADR-004（中文文档） | Community Files, Learning Docs |
+| ADR-005（功能模块化布局） | 全部容器 |
+| ADR-006（多语言 CI 策略）🆕 | CI Workflows |
+</pre>
+<h3>C4 Component</h3><pre class="md-source"># C4 Level 3 — 组件
+
+&gt; 分解最复杂的容器：**CI Workflows**（多语言 CI/CD 流水线）
+
+## 组件清单（CI Workflows 容器）
+
+| 组件 | 技术 | 职责 |
+|------|------|------|
+| Path Filter | `dorny/paths-filter@v3` | 检测变更的服务目录，决定是否触发对应 workflow |
+| Go CI Pipeline | `actions/setup-go@v5` + `golangci-lint` | ride-hermes 服务的 lint → test → build 流水线 |
+| Python CI Pipeline | `actions/setup-python@v5` + `ruff` + `pytest` | ai-service 的 lint → test → build 流水线 |
+| Node CI Pipeline | `actions/setup-node@v4` + `npm ci` | admin-web / mcp 的 lint → test → build 流水线 |
+| Flutter CI Pipeline | `subosito/flutter-action@v2` | driver-app / passenger-app 的 analyze → build 流水线 |
+| Dependency Cache | `actions/cache@v4` | 缓存 Go modules / pip / npm / pub 依赖，减少构建时间 |
+| Docker Build | `docker/build-push-action@v5` | 构建并推送全服务 Docker 镜像（main push 触发） |
+| Reusable Lint | `workflow_call` | 提取公共 lint 逻辑，减少 workflow 间重复 |
+
+## 组件图（CI Workflows 分解）
+
+```mermaid
+flowchart TB
+  subgraph CI[&quot;CI Workflows 容器&quot;]
+    direction TB
+    
+    subgraph Trigger[&quot;触发层&quot;]
+      PF[&quot;Path Filter\n(dorny/paths-filter@v3)&quot;]
+    end
+    
+    subgraph GoCI[&quot;Go CI Pipeline&quot;]
+        GOS[&quot;setup-go@v5&quot;]
+        GOL[&quot;golangci-lint-action@v4&quot;]
+        GOT[&quot;go test ./...&quot;]
+        GOB[&quot;go build ./...&quot;]
+    end
+    
+    subgraph PyCI[&quot;Python CI Pipeline&quot;]
+        PYS[&quot;setup-python@v5&quot;]
+        PYC[&quot;cache pip&quot;]
+        PYL[&quot;ruff check&quot;]
+        PYT[&quot;pytest&quot;]
+    end
+    
+    subgraph NodeCI[&quot;Node CI Pipeline&quot;]
+        NDS[&quot;setup-node@v4&quot;]
+        NDC[&quot;cache npm&quot;]
+        NDI[&quot;npm ci&quot;]
+        NDL[&quot;eslint&quot;]
+        NDT[&quot;jest&quot;]
+        NDB[&quot;npm run build&quot;]
+    end
+    
+    subgraph FlCI[&quot;Flutter CI Pipeline&quot;]
+        FLS[&quot;flutter-action@v2&quot;]
+        FLC[&quot;cache pub&quot;]
+        FLP[&quot;flutter pub get&quot;]
+        FLA[&quot;flutter analyze&quot;]
+    end
+    
+    subgraph DockerCI[&quot;Docker Build&quot;]
+        DKB[&quot;docker/setup-buildx&quot;]
+        DKP[&quot;docker/login&quot;]
+        DKH[&quot;docker/build-push&quot;]
+    end
+    
+    subgraph Reusable[&quot;Reusable Workflows&quot;]
+        RL[&quot;reusable-lint.yml\n(workflow_call)&quot;]
+    end
+  end
+
+  PF --&gt;|backend changed| GoCI
+  PF --&gt;|ai-service changed| PyCI
+  PF --&gt;|admin-web/mcp changed| NodeCI
+  PF --&gt;|driver-app/passenger-app changed| FlCI
+  
+  GoCI --&gt; GOS --&gt; GOL --&gt; GOT --&gt; GOB
+  PyCI --&gt; PYS --&gt; PYC --&gt; PYL --&gt; PYT
+  NodeCI --&gt; NDS --&gt; NDC --&gt; NDI --&gt; NDL --&gt; NDT --&gt; NDB
+  FlCI --&gt; FLS --&gt; FLC --&gt; FLP --&gt; FLA
+  
+  GoCI -.-&gt;|main push| DockerCI
+  PyCI -.-&gt;|main push| DockerCI
+  NodeCI -.-&gt;|main push| DockerCI
+  
+  GoCI -.-&gt;|调用| Reusable
+  PyCI -.-&gt;|调用| Reusable
+  NodeCI -.-&gt;|调用| Reusable
+```
+
+## 组件详细设计
+
+### Path Filter 组件
+
+```yaml
+# .github/workflows/ci.yml 中的 paths-filter 配置
+- uses: dorny/paths-filter@v3
+  id: changes
+  with:
+    filters: |
+      backend:
+        - &#x27;src/ride-hermes/**&#x27;
+      ai-service:
+        - &#x27;src/ai-service/**&#x27;
+      admin-web:
+        - &#x27;src/admin-web/**&#x27;
+      mobile:
+        - &#x27;src/driver-app/**&#x27;
+        - &#x27;src/passenger-app/**&#x27;
+      mcp:
+        - &#x27;src/ride-hermes-mcp/**&#x27;
+      docker:
+        - &#x27;src/docker-compose.yml&#x27;
+        - &#x27;**/Dockerfile&#x27;
+```
+
+### Go CI Pipeline 组件
+
+```yaml
+# ci-backend.yml 核心步骤
+- uses: actions/setup-go@v5
+  with:
+    go-version: &#x27;1.22&#x27;
+- uses: golangci/golangci-lint-action@v4
+  with:
+    working-directory: src/ride-hermes
+- run: cd src/ride-hermes &amp;&amp; go test -race -coverprofile=coverage.out ./...
+- run: cd src/ride-hermes &amp;&amp; go build ./...
+```
+
+### Python CI Pipeline 组件
+
+```yaml
+# ci-ai-service.yml 核心步骤
+- uses: actions/setup-python@v5
+  with:
+    python-version: &#x27;3.12&#x27;
+- uses: actions/cache@v4
+  with:
+    path: ~/.cache/pip
+    key: ${{ runner.os }}-pip-${{ hashFiles(&#x27;src/ai-service/requirements.txt&#x27;) }}
+- run: cd src/ai-service &amp;&amp; pip install -r requirements.txt
+- run: cd src/ai-service &amp;&amp; ruff check .
+- run: cd src/ai-service &amp;&amp; pytest --cov --cov-report=xml
+```
+
+### Dependency Cache 组件
+
+| 服务 | 缓存路径 | key 模式 |
+|------|----------|----------|
+| Go | `~/go/pkg/mod` | `${{ runner.os }}-go-${{ hashFiles(&#x27;**/go.sum&#x27;) }}` |
+| Python | `~/.cache/pip` | `${{ runner.os }}-pip-${{ hashFiles(&#x27;**/requirements.txt&#x27;) }}` |
+| Node | `~/.npm` | `${{ runner.os }}-npm-${{ hashFiles(&#x27;**/package-lock.json&#x27;) }}` |
+| Flutter | `~/.pub-cache` | `${{ runner.os }}-pub-${{ hashFiles(&#x27;**/pubspec.lock&#x27;) }}` |
+
+## 组件间依赖
+
+| 组件 | 依赖 | 说明 |
+|------|------|------|
+| Go/Python/Node/Flutter CI | Path Filter | 由路径过滤结果决定是否执行 |
+| Docker Build | Go/Python/Node CI | 仅在 CI 通过后构建镜像 |
+| Reusable Lint | Go/Python/Node CI | 被各 CI pipeline 调用 |
+| Dependency Cache | 各 CI Pipeline | 嵌入各 pipeline 的 setup 步骤 |
+
+## 关键设计决策
+
+1. **每服务独立 workflow**（而非单一 monolith workflow）
+   - 理由：独立失败、独立重试、独立缓存
+   - 替代方案：单一 workflow + matrix → 失败时全量重跑
+
+2. **paths-filter 前置判断**
+   - 理由：避免无关变更触发全量构建，节省 Actions 分钟
+   - 替代方案：每个 workflow 自带 `paths` 过滤 → 无法跨 workflow 共享判断结果
+
+3. **Reusable Workflows 提取公共逻辑**
+   - 理由：减少 5 个 workflow 间的重复配置
+   - 替代方案：Composite Actions → 粒度太细，不适合跨 workflow 复用
+
+4. **缓存策略：hashFiles 作为 key**
+   - 理由：依赖文件变更时自动失效缓存
+   - 替代方案：时间戳 key → 缓存命中率低
+</pre></div>
   <div class="panel" id="journey-panel"><p><em>Not generated yet.</em></p></div>
   <div class="panel" id="mvp-panel"><p><em>MVP not built yet.</em></p></div>
   <div class="panel" id="ship-panel">

@@ -65,5 +65,16 @@
     "mode": [
       "file_checks"
     ]
+  },
+  "analysis": {
+    "status": "pass",
+    "checks": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0
+    },
+    "mode": [
+      "file_checks"
+    ]
   }
 }
