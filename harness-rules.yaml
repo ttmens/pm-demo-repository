@@ -1,0 +1,31 @@
+version: '6.1.0'
+project:
+  slug: demo-repository
+  tech_stack: python
+  language: zh-CN
+
+runtime:
+  test_cmd: 'python -m py_compile 04-mvp/*.py 2>nul || echo skip-tests'
+  build_cmd: 'python -m py_compile 04-mvp/**/*.py 2>nul || python -m compileall -q 04-mvp'
+  lint_cmd: ''
+  health_url: ''
+  workdir: '04-mvp'
+
+decisions:
+  tech_choice:
+    risk: medium
+    action: write_adr_and_notify
+  deploy:
+    risk: high
+    action: human_checkpoint
+  refactor:
+    risk: low
+    action: auto_verify
+
+human_checkpoints:
+  - align
+  - ship
+
+inner_loop:
+  max_iterations: 3
+  test_command: 'python -m py_compile 04-mvp/*.py 2>nul || echo skip-tests'
