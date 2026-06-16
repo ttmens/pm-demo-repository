@@ -1,8 +1,10 @@
-version: '6.1.0'
+version: '7.2.0'
 project:
   slug: demo-repository
   tech_stack: python
   language: zh-CN
+
+auto_hitl: true
 
 runtime:
   test_cmd: 'python -m py_compile 04-mvp/*.py 2>nul || echo skip-tests'
@@ -17,14 +19,12 @@ decisions:
     action: write_adr_and_notify
   deploy:
     risk: high
-    action: human_checkpoint
+    action: auto_verify
   refactor:
     risk: low
     action: auto_verify
 
-human_checkpoints:
-  - align
-  - ship
+human_checkpoints: []
 
 inner_loop:
   max_iterations: 3

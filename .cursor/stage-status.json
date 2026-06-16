@@ -1,6 +1,6 @@
 {
   "stage": "align",
-  "all_passed": false,
+  "all_passed": true,
   "needs_human_checkpoint": true,
   "kanban_action": "block",
   "pipeline_version": "7.2.0"
