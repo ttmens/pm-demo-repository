@@ -46,9 +46,9 @@
   "align": {
     "status": "fail",
     "checks": {
-      "total": 9,
-      "passed": 2,
-      "failed": 7
+      "total": 10,
+      "passed": 9,
+      "failed": 1
     },
     "mode": [
       "file_checks",

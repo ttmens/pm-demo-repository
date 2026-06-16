@@ -33,7 +33,7 @@
   <div class="meta">
     Repo: <a href="https://github.com/ttmens/pm-demo-repository">https://github.com/ttmens/pm-demo-repository</a> ·
     Pages: <a href="https://ttmens.github.io/pm-demo-repository/">https://ttmens.github.io/pm-demo-repository/</a><br/>
-    Commit: 523cb25 · Built: 2026-06-16 11:52 UTC
+    Commit: 0c772be · Built: 2026-06-16 11:53 UTC
   </div>
   <div class="badges"><span class="badge fail">brief</span> <span class="badge fail">align</span> <span class="badge fail">research</span> <span class="badge fail">analysis</span> <span class="badge fail">spec</span> <span class="badge fail">mvp</span> <span class="badge fail">ship</span> <span class="badge fail">operate</span> <span class="badge fail">grow</span> <span class="badge fail">retro</span> <span class="badge overall unknown">overall: unknown</span></div>
 
@@ -119,7 +119,12 @@ Clone `amnRideAI/demo-repository`（一个展示 GitHub 最佳实践的代码仓
 
 ## 系统上下文
 
-本项目是一个 **GitHub 最佳实践示范仓库**，目标是作为开发者学习 GitHub 平台功能的参考实现。通过 pm-idea-to-mvp v7.2.0 pipeline 的 `import_repo` 场景导入，从原始需求视角对仓库进行深度优化。
+本项目是一个 **GitHub 最佳实践示范仓库**，目标是作为开发者学习 GitHub 平台功能的参考实现。
+通过 pm-idea-to-mvp v7.2.0 pipeline 的 `import_repo` 场景导入，从原始需求视角对仓库进行深度优化。
+
+原始需求（来自用户输入）：
+&gt; 使用想法到产品 最新技能 新开一个项目 [amnRideAI/demo-repository]
+&gt; 从这里面clone整个代码仓 深入理解 分析当前的实现 从原始需求视角 对这个工程进行深入的优化
 
 ## Glossary
 
@@ -134,6 +139,33 @@ Clone `amnRideAI/demo-repository`（一个展示 GitHub 最佳实践的代码仓
 | harness-rules | 项目治理规则文件，定义技术栈、测试命令、人工检查点等 |
 | CI/CD Pipeline | 持续集成/持续部署流水线，覆盖 lint → test → build → deploy |
 | 模板仓库 | GitHub Template Repository，可一键 fork 为新项目而不继承 git 历史 |
+| CODEOWNERS | GitHub 文件，定义代码目录的默认审查者 |
+
+## 假设与风险
+
+### 关键假设
+
+1. **[HIGH RISK] 源仓库可访问性**: `amnRideAI/demo-repository` 在 GitHub 返回 404。
+   - 验证方式: 尝试 `git clone` 确认；若不可访问则基于通用知识重建。
+   - 影响: 若仓库有特定结构，重建产物可能偏离用户期望。
+
+2. **[MEDIUM] 用户关注重点**: 假设用户主要关注 GitHub Actions 和 CI/CD 最佳实践。
+   - 验证方式: align 检查点由用户确认方向。
+   - 影响: 若用户关注其他方面（如 Issues 管理、社区运营），需调整 research 方向。
+
+3. **[MEDIUM] 优化方向**: 假设优化目标是增强可教学性（让仓库成为学习资源）。
+   - 验证方式: 检查用户是否有其他意图（如直接复用为项目模板）。
+   - 影响: 若目标是工具产品而非教学资源，架构决策完全不同。
+
+4. **[LOW] Python 为唯一语言**: 假设示例项目仅使用 Python。
+   - 验证方式: 检查源仓库是否包含多语言示例。
+   - 影响: 若需覆盖多语言，工作量显著增加。
+
+### 风险缓解
+
+- 源仓库不可访问 → 基于 GitHub 官方文档和最佳实践社区共识重建
+- 方向偏差 → align 检查点强制用户确认
+- 范围蔓延 → 非目标明确排除 SaaS / 商业化
 
 ## Stakeholders
 
@@ -150,6 +182,7 @@ Clone `amnRideAI/demo-repository`（一个展示 GitHub 最佳实践的代码仓
 - 文档语言：中文为主（zh-CN）
 - 源仓库可能不可访问（GitHub 404）
 - 产物为静态仓库，非运行时服务
+- MVP 目录结构：04-mvp/ 为代码根目录
 
 ## Non-goals
 
@@ -157,35 +190,79 @@ Clone `amnRideAI/demo-repository`（一个展示 GitHub 最佳实践的代码仓
 - 不涉及商业变现
 - 不做移动端适配
 - 不替代 GitHub 官方文档
+- 不覆盖非 Python 语言生态
 </pre></div><div class="panel" id="decisions-md"><pre class="md-source"># Decisions — demo-repository
 
 ## ADR-001: 源仓库不可访问时的处理策略
 
 - **Status**: proposed
-- **Context**: `amnRideAI/demo-repository` 在 GitHub 返回 404（可能已删除或设为私有）。pipeline 的 `import_repo` 场景依赖 clone 外部仓库作为起点。
-- **Decision**: 基于 GitHub 最佳实践通用知识重建仓库结构，不依赖源仓库内容。若用户后续提供本地副本或替代仓库，可在 research 阶段调整。
-- **Consequences**: 产物可能偏离用户原始期望（如果源仓库有特定结构）。需在 align 检查点由用户确认方向。
+- **Context**: `amnRideAI/demo-repository` 在 GitHub 返回 404（可能已删除或设为私有）。
+  pipeline 的 `import_repo` 场景依赖 clone 外部仓库作为起点。
+  这是一个高风险假设——若仓库有独特结构，重建产物可能偏离用户期望。
+- **Decision**: 基于 GitHub 最佳实践通用知识重建仓库结构，不依赖源仓库内容。
+  若用户后续提供本地副本或替代仓库，可在 research 阶段调整。
+- **Consequences**:
+  - 正面: 不阻塞 pipeline 推进
+  - 负面: 产物可能缺少源仓库的特定设计意图
+  - 风险缓解: align 检查点由用户确认方向是否正确
 
 ## ADR-002: 仓库定位为&quot;学习模板&quot;而非&quot;工具产品&quot;
 
 - **Status**: proposed
-- **Context**: 原始需求提到&quot;深入优化&quot;，但未明确优化方向——是做成可复用的模板仓库，还是做成一个实际运行的工具。
-- **Decision**: 将仓库定位为 **GitHub 最佳实践学习模板**，每个功能模块附带说明文档和使用指南。
-- **Consequences**: 不涉及运行时服务部署，ship 阶段简化为 GitHub Pages 文档发布。
+- **Context**: 原始需求提到&quot;深入优化&quot;，但未明确优化方向。
+  两种可能路径：(a) 可复用的模板仓库 (b) 实际运行的工具产品。
+  假设用户意图是 (a)，因为原始描述强调&quot;展示 GitHub 最佳实践&quot;。
+- **Decision**: 将仓库定位为 **GitHub 最佳实践学习模板**，
+  每个功能模块附带说明文档和使用指南。
+- **Consequences**:
+  - 正面: 不涉及运行时服务部署，ship 阶段简化
+  - 负面: 若用户期望工具产品，需大幅调整
+  - 验证: align 检查点确认
 
 ## ADR-003: 技术栈锁定 Python
 
 - **Status**: accepted
-- **Context**: harness-rules.yaml 已指定 `tech_stack: python`，所有示例代码和 CI/CD 均基于 Python。
-- **Decision**: 示例项目使用 Python，CI/CD workflow 使用 Python 生态工具（pytest、ruff、pip）。
-- **Consequences**: 不涉及其他语言生态的最佳实践展示（如 Node.js、Go）。
+- **Context**: harness-rules.yaml 已指定 `tech_stack: python`。
+  所有示例代码和 CI/CD 均基于 Python。
+  假设用户接受 Python 作为唯一示例语言。
+- **Decision**: 示例项目使用 Python，CI/CD workflow 使用 Python 生态工具
+  （pytest、ruff、pip）。
+- **Consequences**:
+  - 正面: 技术栈统一，降低维护复杂度
+  - 负面: 不覆盖其他语言生态的最佳实践
+  - 风险: 若用户期望多语言示例，需扩展范围
 
 ## ADR-004: 文档语言以中文为主
 
 - **Status**: accepted
 - **Context**: harness-rules.yaml 指定 `language: zh-CN`，用户主要使用中文交流。
+  假设目标用户群体为中文开发者。
 - **Decision**: 所有文档、README、注释使用中文；代码标识符和 YAML 配置保留英文。
-- **Consequences**: 对非中文用户的可访问性降低，但符合目标用户画像。
+- **Consequences**:
+  - 正面: 符合目标用户画像
+  - 负面: 对非中文用户的可访问性降低
+  - 风险: 若目标是国际化项目，需增加英文版本
+
+## ADR-005: 仓库结构采用功能模块化布局
+
+- **Status**: proposed
+- **Context**: 作为学习模板，仓库结构需要清晰展示每个 GitHub 功能的独立实现。
+  假设按功能模块组织（.github/actions/、.github/ISSUE_TEMPLATE/ 等）。
+- **Decision**: 采用功能模块化布局，每个 GitHub 功能有独立目录和 README。
+- **Consequences**:
+  - 正面: 易于定位和学习特定功能
+  - 负面: 可能导致目录层级较深
+  - 验证: research 阶段评估其他开源模板仓库的结构
+
+## 假设汇总与验证计划
+
+| 假设 | 风险等级 | 验证方式 | 阶段 |
+|------|----------|----------|------|
+| 源仓库不可访问 | HIGH | git clone 测试 | research |
+| 用户关注 CI/CD | MEDIUM | align 检查点确认 | align |
+| 优化方向为教学 | MEDIUM | align 检查点确认 | align |
+| Python 为唯一语言 | LOW | 检查源仓库 | research |
+| 功能模块化布局 | LOW | 对比其他模板 | research |
 </pre></div><div class="panel" id="01-research-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="01b-benchmark-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="02-analysis-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="03b-user-journey-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="03-prd-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="05-retro-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="06-refine-retro-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="RUNBOOK-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="07-ops-notes-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="06-growth-md"><p><em>Not generated yet.</em></p></div><div class="panel" id="docs-ui-acceptance-report-md"><p><em>Not generated yet.</em></p></div>
   <div class="panel" id="openspec-panel"><p><em>OpenSpec not generated yet.</em></p></div>
   <div class="panel" id="c4-panel"><p><em>C4 architecture not generated yet.</em></p></div>

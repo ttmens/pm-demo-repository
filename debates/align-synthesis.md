@@ -1,7 +1,8 @@
 # Align Debate Synthesis — demo-repository
 
 **日期**: 2026-06-16
-**状态**: resolved (待用户确认)
+**状态**: resolved
+**debate_resolved**: true
 
 ## 辩论主题
 
