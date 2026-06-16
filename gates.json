@@ -54,5 +54,16 @@
       "file_checks",
       "runtime"
     ]
+  },
+  "research": {
+    "status": "pass",
+    "checks": {
+      "total": 4,
+      "passed": 4,
+      "failed": 0
+    },
+    "mode": [
+      "file_checks"
+    ]
   }
 }
