@@ -1,26 +1,24 @@
-# 本次运行说明 (v6.1 — greenfield)
+# 本次运行说明 (v7.2 — import_repo)
 
 | 项 | 值 |
 |----|-----|
 | 标题 | Idea: https://github.com/amnRideAI/demo-repository 这个仓的代码先clone下来 |
 | Slug | `demo-repository` |
-| Scenario | `greenfield` |
+| Scenario | `import_repo` |
 | 目录 | `D:/workspace/projects/pm-demo-repository` |
 | Pages | https://ttmens.github.io/pm-demo-repository/ |
 
 ## 阶段清单
 
-- [ ] Grill 对齐想法 — demo-repository
+- [ ] Grill 对齐+范围 — demo-repository
+- [ ] Clone 外部仓库 — demo-repository
 - [ ] 深度调研 — demo-repository
 - [ ] 方案论证 — demo-repository
 - [ ] 原型+PRD+OpenSpec — demo-repository
-- [ ] MVP Plan — demo-repository
-- [ ] MVP Code+Test iter 1 — demo-repository
-- [ ] MVP Code+Test iter 2 — demo-repository
-- [ ] MVP Code+Test iter 3 — demo-repository
+- [ ] MVP 优化 iter 1 — demo-repository
+- [ ] MVP 优化 iter 2 — demo-repository
+- [ ] MVP 优化 iter 3 — demo-repository
 - [ ] Ship 部署 — demo-repository
-- [ ] Operate 运维 — demo-repository
-- [ ] Grow 增长 — demo-repository
 - [ ] Retro+进化 — demo-repository
 
 ## 人工检查点
