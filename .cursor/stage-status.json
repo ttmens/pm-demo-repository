@@ -1,5 +1,5 @@
 {
-  "stage": "analysis",
+  "stage": "align",
   "all_passed": true,
   "needs_human_checkpoint": false,
   "kanban_action": "complete",
